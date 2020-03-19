@@ -174,9 +174,9 @@ class DomainCreator(Creator):
         self.__fail_mt_1221_domain_creation()
         self.__create_domain()
         self.__deploy()
+        #elf.__set_server_groups()
         self.__update_domain()
-        self.__set_server_groups()
-        self.__update_domain()
+        # self.__update_domain()
         self.__deploy_after_update()
         self.__create_boot_dot_properties()
 
@@ -409,7 +409,8 @@ class DomainCreator(Creator):
         self.__set_core_domain_params()
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.write_domain(domain_home)
+
+        # self.wlst_helper.write_domain(domain_home)
 
         self.logger.info('WLSDPLY-12206', self._domain_name, class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.close_template()
@@ -500,7 +501,7 @@ class DomainCreator(Creator):
             self.__set_app_dir()
             self.__configure_fmw_infra_database()
             self.__configure_opss_secrets()
-
+        self.__set_server_groups()
         self.wlst_helper.write_domain(domain_home)
 
         self.logger.info('WLSDPLY-12206', self._domain_name, class_name=self.__class_name, method_name=_method_name)
@@ -513,7 +514,7 @@ class DomainCreator(Creator):
     def __set_server_groups(self):
         _method_name = '__set_server_groups'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.read_domain(self._domain_home)
+        #self.wlst_helper.read_domain(self._domain_home)
         if self.wls_helper.is_set_server_groups_supported():
             # 12c versions set server groups directly
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()

@@ -37,9 +37,6 @@ pipeline {
             }
         }
         stage ('Verify') {
-            when {
-                changeRequest()
-            }
             steps {
                 sh 'mvn -P system-test -Dmw_home=${ORACLE_HOME} test-compile failsafe:integration-test'
             }
