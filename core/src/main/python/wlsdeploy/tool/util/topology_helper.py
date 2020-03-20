@@ -148,6 +148,32 @@ class TopologyHelper(object):
                     self.wlst_helper.set('Name', name)
                 self.wlst_helper.cd(original_location)
 
+    def clear_jdbc_placeholder_targeting(self, resources):
+        """
+        Remove any targets for the JDBC resources in the specified dictionary.
+        Targets may have been inadvertently assigned when clusters were added after JDBC placeholders.
+        :param resources: dictionary containing the resources section of the model
+        """
+        _method_name = 'clear_jdbc_placeholder_targeting'
+        resource_location = LocationContext().append_location(JDBC_SYSTEM_RESOURCE)
+        token = self.alias_helper.get_name_token(resource_location)
+
+        if self.alias_helper.get_wlst_mbean_type(resource_location) is not None:
+            name_nodes = dictionary_utils.get_dictionary_element(resources, JDBC_SYSTEM_RESOURCE)
+            for name in name_nodes.keys():
+                if model_helper.is_delete_name(name):
+                    # don't clear placeholder for delete names
+                    continue
+
+                self.logger.info('WLSDPLY-19404', JDBC_SYSTEM_RESOURCE, name, class_name=self.__class_name,
+                                 method_name=_method_name)
+
+                resource_location.add_name_token(token, name)
+                wlst_path = self.alias_helper.get_wlst_attributes_path(resource_location)
+                if self.wlst_helper.path_exists(wlst_path):
+                    mbean = self.wlst_helper.get_mbean_for_wlst_path(wlst_path)
+                    mbean.setTargets(None)
+
     def qualify_nm_properties(self, type_name, model_nodes, base_location, model_context, attribute_setter):
         """
         For the NM properties MBean, update the keystore file path to be fully qualified with the domain directory.

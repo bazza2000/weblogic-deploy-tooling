@@ -750,6 +750,9 @@ class DomainCreator(Creator):
         if len(server_nodes) > 0:
             self._create_named_mbeans(SERVER, server_nodes, location, log_created=True)
 
+        # targets may have been inadvertently assigned when clusters were added
+        self.topology_helper.clear_jdbc_placeholder_targeting(resources_dict)
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
