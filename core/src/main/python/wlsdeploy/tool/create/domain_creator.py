@@ -175,9 +175,6 @@ class DomainCreator(Creator):
         self.__create_domain()
         self.__deploy()
         self.__update_domain()
-        if not self.wls_helper.is_weblogic_version_or_above('12.1.2'):
-            self.__set_server_groups()
-        self.__update_domain()
         self.__deploy_after_update()
         self.__create_boot_dot_properties()
 
@@ -505,6 +502,7 @@ class DomainCreator(Creator):
         if not self.wls_helper.is_weblogic_version_or_above('12.1.2'):
             self.wlst_helper.write_domain(domain_home)
             self.logger.info('WLSDPLY-12206', self._domain_name, class_name=self.__class_name, method_name=_method_name)
+            self.__set_server_groups()
         else:
             self.__set_server_groups()
             self.wlst_helper.write_domain(domain_home)
