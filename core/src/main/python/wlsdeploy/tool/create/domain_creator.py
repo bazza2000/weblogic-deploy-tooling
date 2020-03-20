@@ -175,6 +175,9 @@ class DomainCreator(Creator):
         self.__create_domain()
         self.__deploy()
         self.__update_domain()
+        if not self.wls_helper.is_weblogic_version_or_above('12.1.2'):
+            self.__set_server_groups()
+        self.__update_domain()
         self.__deploy_after_update()
         self.__create_boot_dot_properties()
 
@@ -407,6 +410,8 @@ class DomainCreator(Creator):
         self.__set_core_domain_params()
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
+        self.wlst_helper.write_domain(domain_home)
+
         self.logger.info('WLSDPLY-12206', self._domain_name, class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.close_template()
         self.wlst_helper.read_domain(domain_home)
@@ -496,13 +501,16 @@ class DomainCreator(Creator):
             self.__set_app_dir()
             self.__configure_fmw_infra_database()
             self.__configure_opss_secrets()
-        self.__set_server_groups()
-        self.wlst_helper.write_domain(domain_home)
 
-        self.logger.info('WLSDPLY-12206', self._domain_name, class_name=self.__class_name, method_name=_method_name)
+        if not self.wls_helper.is_weblogic_version_or_above('12.1.2'):
+            self.wlst_helper.write_domain(domain_home)
+            self.logger.info('WLSDPLY-12206', self._domain_name, class_name=self.__class_name, method_name=_method_name)
+        else:
+            self.__set_server_groups()
+            self.wlst_helper.write_domain(domain_home)
+
         self.wlst_helper.close_template()
         self.wlst_helper.read_domain(domain_home)
-
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -522,6 +530,7 @@ class DomainCreator(Creator):
         elif self._domain_typedef.is_jrf_domain_type() or \
                 (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
             # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
+            self.wlst_helper.read_domain(self._domain_home)
             self.target_helper.target_jrf_groups_to_clusters_servers()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
